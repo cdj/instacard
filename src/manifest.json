@@ -1,0 +1,24 @@
+{
+   "author": "okCarl",
+   "background": {
+      "persistent": true,
+      "scripts": [ "bg.js" ]
+   },
+   "content_scripts": [ {
+      "css": [ "instacard.css" ],
+      "js": [ "jquery-3.1.1.slim.min.js", "instacard.js" ],
+      "matches": [ "https://twitter.com/*" ],
+      "run_at": "document_end"
+   } ],
+   "description": "See Instagram photos and videos right inside Twitter.com's status cards",
+   "icons": {
+      "128": "icon128_3_opt.png",
+      "16": "icon16_3_opt.png",
+      "48": "icon48_3_opt.png"
+   },
+   "manifest_version": 2,
+   "name": "InstaCard",
+   "permissions": [ "webRequest", "webRequestBlocking", "tabs", "https://twitter.com/*", "https://*.instagram.com/*", "http://*.instagram.com/*", "https://instagram.com/*", "http://instagram.com/*" ],
+   "short_name": "InstaCard",
+   "version": "0.9"
+}

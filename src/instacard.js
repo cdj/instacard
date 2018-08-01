@@ -51,9 +51,9 @@
                     script.type = 'text/javascript';
                     script.src = '//www.instagram.com/embed.js';
                     script.setAttribute("async", "");
-                    script.setAttribute("defer", "");
+                    // script.setAttribute("defer", "");
                     document.head.appendChild(script);
-                }, 150);
+                }, 200);
             })
             .catch(reason => {
                 console.log(`An unknown error loading of ${instaUrl}. The reason: ${reason}`);
@@ -110,9 +110,9 @@
                         script.type = 'text/javascript';
                         script.src = '//www.instagram.com/embed.js';
                         script.setAttribute("async", "");
-                        script.setAttribute("defer", "");
+                        // script.setAttribute("defer", "");
                         document.head.appendChild(script);
-                    }, 150);
+                    }, 200);
                 })
                 .catch(reason => {
                     console.log(`An unknown error loading of ${instaUrl}. The reason: ${reason}`);

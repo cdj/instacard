@@ -10,13 +10,10 @@ chrome.webRequest.onHeadersReceived.addListener(
                 "connect-src", "connect-src https://*.instagram.com https://instagram.com http://*.instagram.com http://instagram.com");
             details.responseHeaders[idCSPHeader].value = details.responseHeaders[idCSPHeader].value.replace(
                 "script-src", "script-src https://*.instagram.com https://www.instagram.com  https://instagram.com http://*.instagram.com http://instagram.com");
-                // https://www.instagram.com/static/bundles/base/EmbedSDK.js/cc9f6203a0cc.js
             details.responseHeaders[idCSPHeader].value = details.responseHeaders[idCSPHeader].value.replace(
                 "frame-src", "frame-src https://*.instagram.com https://instagram.com http://*.instagram.com http://instagram.com");
             details.responseHeaders[idCSPHeader].value = details.responseHeaders[idCSPHeader].value.replace(
                 "frame-ancestors", "frame-ancestors https://*.instagram.com https://instagram.com http://*.instagram.com http://instagram.com http://*.twitter.com http://twitter.com https://*.twitter.com https://twitter.com");
-            // details.responseHeaders[idCSPHeader].value = details.responseHeaders[idCSPHeader].value.replace(
-            //     "twitter:", "twitter: https://*.instagram.com https://instagram.com http://*.instagram.com http://instagram.com");
         }
         for(var i = details.responseHeaders.length-1; i >= 0; --i) {
             var header = details.responseHeaders[i].name.toLowerCase();

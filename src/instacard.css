@@ -5,6 +5,17 @@
     border-radius: 5px;
     margin: 10px 0 0 0;
 }
+.instacard-new .instacard {
+    border: 1px solid rgb(204, 214, 221);
+    border-radius: 14px;
+    padding: 0 0 15px 0;
+
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
+}
+
+.instacard-new.instacardDark .instacard {
+    border-color: rgb(56, 68, 77);
+}
 
 /* .js-stream-item .instacard {
     width: 504px;
@@ -39,4 +50,42 @@
     background-color: white;
     color: black;
     border-radius: 2px;
+}
+.instacard-new .instacard .video-info {
+    background-color: inherit;
+    color: inherit;
+    border-radius: auto;
+}
+
+.instacard iframe {
+    border: none !important;
+}
+
+.instacard .instathumb {
+    max-width: 100%;
+    height: auto;
+    width: auto;
+    margin: 0 auto;
+}
+.instacard .instatext {
+    margin: 15px 20px 0 20px;
+    font-size: small;
+    color: rgb(101, 119, 134);
+}
+.instacardDark .instacard .instatext {
+    color: rgb(136, 153, 166);
+}
+
+.instacard .insta-author a {
+    float: right;
+    margin: 5px 20px 0 20px;
+}
+.instacard .insta-author a {
+    color: rgb(20, 23, 26) !important;
+    text-decoration: none;
+    font-size: smaller;
+}
+
+.instacardDark .instacard .insta-author a {
+    color: rgb(255, 255, 255) !important;
 }

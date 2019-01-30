@@ -120,30 +120,124 @@
         }
     };
 
+    const addInstaNew = (tweet) => {
+        if (!tweet.hasClass('instaProcessed')) {
+            console.log("run");
+            tweet.addClass('instaProcessed');
+
+            const text = tweet.text();
+            if (!text || ((text.indexOf("instagr.am") == -1) && (text.indexOf("instagram.com") == -1))) {
+                return;
+            }
+
+            const instaUrl = tweet.find('a[title*="instagr"]').attr('title');
+            if (!instaUrl) {
+                return;
+            }
+            const instaUrlSplit = instaUrl.split('/');
+            if(instaUrlSplit.length < 5) {
+                return;
+            }
+            clearTimeout(injectScriptWaiter);
+            const instaShort = instaUrlSplit[4] || "";
+            const width = Math.floor(tweet.find("[aria-label='Tweet actions']").parent().width());
+            console.log("url found", instaUrl, instaShort, width);
+
+            fetch("https://api.instagram.com/oembed/?url=http://instagr.am/p/" + instaShort + "/&maxwidth="+width+"&omitscript=true")
+                .then(response => {
+                    if (response.status !== 200) {
+                        throw Error(`${response.url} has returned ${response.status} status code.`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const html = 
+                        '<a href="' + instaUrl + '" target="_blank">' +
+                            '<img class="instathumb" src="' + data.thumbnail_url + '">' +
+                        '</a>' +
+                        '<p class="instatext"></p>' +
+                        '<div class="insta-author">' +
+                            '<a href="https://twitter.com/' + data.author_name + '" target="_blank">@' + data.author_name + '</a>' +
+                        '</div>';
+                    const injectedCode = $("<div/>").html(html).addClass('instacard');
+                    injectedCode.find(".instatext").first().text(data.title);
+                    const actions = tweet.find("div[lang]").first();
+                    if(actions.length) {
+                        actions.append(injectedCode)
+                    } else {
+                        tweet.find("[aria-label='Tweet actions']").first().before(injectedCode);
+                    }
+                    tweet.find("div.instacard *").css({"background": "", "background-color": "", "color": "", "border": "", "border-radius": "", "box-shadow": ""})
+                    const refUrl = injectedCode.find("a").attr("href") || ('http://instagr.am/p/' + instaShort + '/');
+                    const image = $('<a href="'+refUrl+'" target="_blank"><img src="'+data.thumbnail_url+'" alt="'+data.title+'"></a>');
+                    injectedCode.find("[data-instgrm-permalink] > div > div").first()
+                        .html(image)
+                        .css({"padding": 0, "margin-top": 0});
+                })
+                .catch(reason => {
+                    console.log(`An unknown error loading of ${instaUrl}. The reason: ${reason}`);
+                });
+        }
+    };
+
     // single post
     const permalinkOverlay = $("#permalink-overlay");
-    new MutationObserver(() => {
-        if (permalinkOverlay.is(":visible")) {
-            permalinkOverlay.find(".permalink .permalink-tweet").each((n, value) => {
-                addInsta($(value));
-            });
-        }
-    }).observe(permalinkOverlay[0], {
-        attributes: true,
-        subtree: true,
-    });
+        if(permalinkOverlay.length) {
+        new MutationObserver(() => {
+            if (permalinkOverlay.is(":visible")) {
+                permalinkOverlay.find(".permalink .permalink-tweet").each((n, value) => {
+                    addInsta($(value));
+                });
+            }
+        }).observe(permalinkOverlay[0], {
+            attributes: true,
+            subtree: true,
+        });
+    }
 
     // tweet stream
     const streamItems = $("#stream-items-id");
-    new MutationObserver(() => {
+    const streamItemsNew = $("#react-root");
+
+    if(streamItems.length) {
+        console.log("stream", streamItems);
+        new MutationObserver(() => {
+            streamItems.children('.js-stream-item:not(.instaProcessed)[data-item-type=tweet]').each((n, value) => {
+                addInsta($(value));
+            });
+        }).observe(streamItems[0], {
+            childList: true
+        });
+
         streamItems.children('.js-stream-item:not(.instaProcessed)[data-item-type=tweet]').each((n, value) => {
             addInsta($(value));
         });
-    }).observe(streamItems[0], {
-        childList: true
-    });
+    } else if(streamItemsNew.length) {
+        console.log("new stream", streamItemsNew);
+        new MutationObserver(() => {
+            streamItemsNew.find('main section article:not(.instaProcessed)').each((n, value) => {
+                console.log("tweet");
+                addInstaNew($(value));
+            });
+        }).observe(streamItemsNew[0], {
+            childList: true,
+            subtree: true
+        });
 
-    streamItems.children('.js-stream-item:not(.instaProcessed)[data-item-type=tweet]').each((n, value) => {
-        addInsta($(value));
-    });
+        streamItemsNew.find('main section article:not(.instaProcessed)').each((n, value) => {
+            console.log("tweet");
+            addInstaNew($(value));
+        });
+
+        const body = $("body");
+        new MutationObserver(() => {
+            var isDark = body.css("background-color") !== "rgb(255, 255, 255)";
+            console.log("is dark", isDark, body.css("background-color"));
+            body.toggleClass('instacardDark', isDark);
+        })
+        .observe(body[0], {
+            attributes: true
+        });
+        body.addClass('instacard-new');
+    }
 })();

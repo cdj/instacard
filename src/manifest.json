@@ -10,6 +10,7 @@
       "matches": [ "https://twitter.com/*" ],
       "run_at": "document_end"
    } ],
+   "content_security_policy": "script-src 'self' https://www.instagram.com/; frame-src 'self' https://www.instagram.com/; object-src 'self'; default-src 'self' https://www.instagram.com/",
    "description": "See Instagram photos and videos right inside Twitter.com's status cards",
    "icons": {
       "128": "icon128_3_opt.png",
@@ -20,5 +21,5 @@
    "name": "InstaCard",
    "permissions": [ "webRequest", "webRequestBlocking", "tabs", "https://twitter.com/*", "https://*.instagram.com/*", "http://*.instagram.com/*", "https://instagram.com/*", "http://instagram.com/*" ],
    "short_name": "InstaCard",
-   "version": "0.9"
+   "version": "0.9.1"
 }

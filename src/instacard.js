@@ -211,7 +211,7 @@
         });
     } else if(streamItemsNew.length) {
         new MutationObserver(() => {
-            streamItemsNew.find('main section article:not(.instaProcessed)').each((n, value) => {
+            streamItemsNew.find('main section article[role="article"]:not(.instaProcessed)').each((n, value) => {
                 addInstaNew($(value));
             });
         }).observe(streamItemsNew[0], {
@@ -219,7 +219,7 @@
             subtree: true
         });
 
-        streamItemsNew.find('main section article:not(.instaProcessed)').each((n, value) => {
+        streamItemsNew.find('main section article[role="article"]:not(.instaProcessed)').each((n, value) => {
             addInstaNew($(value));
         });
 

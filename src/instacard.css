@@ -89,3 +89,7 @@
 .instacardDark .instacard .insta-author a {
     color: rgb(255, 255, 255) !important;
 }
+
+.instacard-ad {
+    display: none !important;
+}

@@ -210,9 +210,27 @@
             addInsta($(value));
         });
     } else if(streamItemsNew.length) {
+        let trending = streamItemsNew.find('section[role="region"] div[aria-label="Timeline\: Trending now"]');
         new MutationObserver(() => {
             streamItemsNew.find('main section article[role="article"]:not(.instaProcessed)').each((n, value) => {
                 addInstaNew($(value));
+                $(value).find('[aria-label="Tweet actions"] + div:not(.instaAdProcessed)').each((n, value2) => {
+                    if($(value2).text().trim() === "Promoted") {
+                        $(value).first().addClass('instacard-ad');
+                    }
+                    $(value2).addClass('instaAdProcessed')
+                });
+            });
+            if(!trending.length) {
+                trending = streamItemsNew.find('section[role="region"] div[aria-label="Timeline\: Trending now"], section[role="region"] div[aria-label="Timeline\: Trends"]');
+            }
+            trending.find('div[data-focusable="true"]:not(.instaAdProcessed) > div:last-child').each((n, value) => {
+                const par = $(value).parent();
+                if($(value).text().indexOf("Promoted by ") === 0) {
+                    par.addClass('instacard-ad instaAdProcessed');
+                } else {
+                    par.addClass('instaAdProcessed');
+                }
             });
         }).observe(streamItemsNew[0], {
             childList: true,
@@ -221,6 +239,14 @@
 
         streamItemsNew.find('main section article[role="article"]:not(.instaProcessed)').each((n, value) => {
             addInstaNew($(value));
+        });
+        trending.find('div[data-focusable="true"]:not(.instaAdProcessed) > div:last-child').each((n, value) => {
+            const par = $(value).parent();
+            if($(value).text().indexOf("Promoted by ") === 0) {
+                par.addClass('instacard-ad instaAdProcessed');
+            } else {
+                par.addClass('instaAdProcessed');
+            }
         });
 
         const body = $("body");

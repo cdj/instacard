@@ -122,7 +122,6 @@
 
     const addInstaNew = (tweet) => {
         if (!tweet.hasClass('instaProcessed')) {
-            console.log("run");
             tweet.addClass('instaProcessed');
 
             const text = tweet.text();
@@ -141,7 +140,6 @@
             clearTimeout(injectScriptWaiter);
             const instaShort = instaUrlSplit[4] || "";
             const width = Math.floor(tweet.find("[aria-label='Tweet actions']").parent().width());
-            console.log("url found", instaUrl, instaShort, width);
 
             fetch("https://api.instagram.com/oembed/?url=http://instagr.am/p/" + instaShort + "/&maxwidth="+width+"&omitscript=true")
                 .then(response => {
@@ -200,7 +198,6 @@
     const streamItemsNew = $("#react-root");
 
     if(streamItems.length) {
-        console.log("stream", streamItems);
         new MutationObserver(() => {
             streamItems.children('.js-stream-item:not(.instaProcessed)[data-item-type=tweet]').each((n, value) => {
                 addInsta($(value));
@@ -213,10 +210,8 @@
             addInsta($(value));
         });
     } else if(streamItemsNew.length) {
-        console.log("new stream", streamItemsNew);
         new MutationObserver(() => {
             streamItemsNew.find('main section article:not(.instaProcessed)').each((n, value) => {
-                console.log("tweet");
                 addInstaNew($(value));
             });
         }).observe(streamItemsNew[0], {
@@ -225,14 +220,12 @@
         });
 
         streamItemsNew.find('main section article:not(.instaProcessed)').each((n, value) => {
-            console.log("tweet");
             addInstaNew($(value));
         });
 
         const body = $("body");
         new MutationObserver(() => {
             var isDark = body.css("background-color") !== "rgb(255, 255, 255)";
-            console.log("is dark", isDark, body.css("background-color"));
             body.toggleClass('instacardDark', isDark);
         })
         .observe(body[0], {

@@ -139,7 +139,8 @@
             if (!text || ((text.indexOf("instagr.am") == -1) && (text.indexOf("instagram.com") == -1)) || !instaUrl || instaUrl.length === 0) {
                 return;
             }
-            $(tweet).parent().parents("div:not([class]),div.instaProcessed").first().addClass('has-instagram');
+            const timeline = $('#react-root div[aria-label^="Timeline\: "] .instacard-top');
+            $(tweet).parent().parents("div:not([class]),div.instaProcessed").not(timeline).not(timeline.parents()).first().addClass('has-instagram');
 
             const instaUrlSplit = instaUrl.split('/');
             if(instaUrlSplit.length < 6) {
@@ -271,20 +272,20 @@
             if(timeline.length) {
                 timeline.children().addClass("instacard-top");
                 timeline.find('.instacard-top div:not([class]) > div[class] h2[aria-level="2"][role="heading"]:not(.instaAdProcessed)').each((n, value) => {
-                        $(value).parents("div:not([class]),div.instaAdProcessed").first().addClass('instacard-ad instaProcessed instaAdProcessed');
                     if($(value).text().toLowerCase().indexOf("promoted") === 0) {
+                        $(value).parents("div:not([class]),div.instaAdProcessed").not(timeline).not(timeline.parents()).first().addClass('instacard-ad instaProcessed instaAdProcessed');
                         // console.warn("[instacard] 'Promoted Tweet' ad found", value, value2, par);
                     }
                     $(value).addClass("instaAdProcessed");
                 });
                 timeline.find(
-                    '.instacard-top div:not([class]) > div[class] div:not(.instaAdProcessed) div[aria-haspopup="false"][role="button"][data-focusable="true"][tabindex="0"]:not(.instaAdProcessed,.instaProcessed),' +
-                    '.instacard-top div:not([class]) > div[class] div:not(.instaAdProcessed) article[role="article"]:not(.instaAdProcessed,.instaProcessed)'
+                    '.instacard-top div:not([class]) > div[class] div[aria-haspopup="false"][role="button"][data-focusable="true"][tabindex="0"]:not(.instaAdProcessed,.instaProcessed),' +
+                    '.instacard-top div:not([class]) > div[class] article[role="article"]:not(.instaAdProcessed,.instaProcessed)'
                 ).each((n, value) => {
                     let found = false;
                     $("span,svg", value).each((n2, value2) => {
-                            $(value).parent().parents("div:not([class]),div.instaAdProcessed").first().addClass('instacard-ad instaProcessed instaAdProcessed');
                         if($(value2).parent().text().indexOf("Promoted by ") === 0 || $(value2).parent().text().toLowerCase().indexOf("promoted") === 0) {
+                            $(value).parent().parents("div:not([class]),div.instaAdProcessed").not(timeline).not(timeline.parents()).first().addClass('instacard-ad instaProcessed instaAdProcessed');
                             // console.warn("[instacard] 'Promoted by' ad found", value, value2, par);
                             found = true;
                             return false;
@@ -292,7 +293,7 @@
                     });
                     if(!found) {
                         addInstaNew($(value));
-                        $(value).parent().parents("div:not([class]),div.instaAdProcessed").first().addClass('instaAdProcessed');
+                        $(value).parent().parents("div:not([class]),div.instaAdProcessed").not(timeline).not(timeline.parents()).first().addClass('instaAdProcessed');
                     }
                     $(value).addClass("instaAdProcessed");
                 });

@@ -271,8 +271,8 @@
             if(timeline.length) {
                 timeline.children().addClass("instacard-top");
                 timeline.find('.instacard-top div:not([class]) > div[class] h2[aria-level="2"][role="heading"]:not(.instaAdProcessed)').each((n, value) => {
-                    if($(value).text() === "Promoted Tweet") {
                         $(value).parents("div:not([class]),div.instaAdProcessed").first().addClass('instacard-ad instaProcessed instaAdProcessed');
+                    if($(value).text().toLowerCase().indexOf("promoted") === 0) {
                         // console.warn("[instacard] 'Promoted Tweet' ad found", value, value2, par);
                     }
                     $(value).addClass("instaAdProcessed");
@@ -283,8 +283,8 @@
                 ).each((n, value) => {
                     let found = false;
                     $("span,svg", value).each((n2, value2) => {
-                        if($(value2).parent().text().indexOf("Promoted by ") === 0 || $(value2).parent().text() === "Promoted") {
                             $(value).parent().parents("div:not([class]),div.instaAdProcessed").first().addClass('instacard-ad instaProcessed instaAdProcessed');
+                        if($(value2).parent().text().indexOf("Promoted by ") === 0 || $(value2).parent().text().toLowerCase().indexOf("promoted") === 0) {
                             // console.warn("[instacard] 'Promoted by' ad found", value, value2, par);
                             found = true;
                             return false;
@@ -301,7 +301,7 @@
                 trending.children().addClass("instacard-top");
                 trending.find('.instacard-top div[data-focusable="true"]:not(.instaAdProcessed) > div:last-child').each((n, value) => {
                     const par = $(value).parent();
-                    if($(value).text().indexOf("Promoted by ") === 0) {
+                    if($(value).text().toLowerCase().indexOf("promoted") === 0) {
                         par.addClass('instacard-ad instaAdProcessed');
                     } else {
                         par.addClass('instaAdProcessed');

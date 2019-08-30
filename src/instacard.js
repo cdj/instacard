@@ -72,118 +72,104 @@
     };
 
     const addInstaNew = (tweet) => {
-        // if(!tweet.classList.contains('insta-gram')) {
-        //     tweet.classList.add('insta-gram');
 
-            const text = tweet.innerText;
-            if(/\/\/(www.)?((instagram.com)|(instagr.am))\/p\/[A-Za-z0-9]+/gi.test(text)) {
-                const instaUrl = $(tweet).find('a[title*="instagr"]').attr('title');
-                const instaUrlSplit = instaUrl.split('?')[0].split('/');
-                if(instaUrlSplit.length < 6) return;
-                clearTimeout(injectScriptWaiter);
-                let instaShort = '';
-                for(let s = 0; s < instaUrlSplit.length; s++) {
-                    if(instaUrlSplit[s] === 'p' && (s + 1) < instaUrlSplit.length) {
-                        instaShort = instaUrlSplit[s + 1];
-                        break;
-                    }
-                    instaShort = instaUrlSplit[s];
+        const text = tweet.innerText;
+        if(/\/\/(www.)?((instagram.com)|(instagr.am))\/p\/[A-Za-z0-9]+/gi.test(text)) {
+            const instaUrl = $(tweet).find('a[title*="instagr"]').attr('title');
+            const instaUrlSplit = instaUrl.split('?')[0].split('/');
+            if(instaUrlSplit.length < 6) return;
+            clearTimeout(injectScriptWaiter);
+            let instaShort = '';
+            for(let s = 0; s < instaUrlSplit.length; s++) {
+                if(instaUrlSplit[s] === 'p' && (s + 1) < instaUrlSplit.length) {
+                    instaShort = instaUrlSplit[s + 1];
+                    break;
                 }
-                if(!instaShort) {
-                    return;
-                }
-                let par = tweet;
-                if(par.children.length === 1) {
-                    par = par.children.item(0);
-                    if(par.children.length >= 2) {
-                        par = par.children.item(1);
-                    }
-                }
-                const width = Math.floor(par.clientWidth);
-
-                console.info('instacard getEmbed', instaShort, width);
-
-                chrome.runtime.sendMessage(
-                    {
-                        contentScriptQuery: "getEmbed", 
-                        instaId: instaShort,
-                        width: width
-                    },
-                    data => {
-                        console.info('instacard embed data', data);
-                        const injectedCode = $(`
-                            <div class="instacard">
-                                <a href="${instaUrl}" target="_blank">
-                                    <img class="instathumb" src="${data.thumbnail_url}">
-                                </a>
-                                <p class="instatext"></p>
-                                <div class="insta-author">
-                                    <a href="https://www.instagram.com/${data.author_name}" target="_blank">@${data.author_name}</a>
-                                </div>
-                            </div>
-                        `);
-                        injectedCode.find(".instatext").text(data.title);
-                        let insertAfter = $(par).children();
-                        insertAfter = insertAfter.not('[aria-label*="Retweets"],[aria-label*="likes"]');
-                        insertAfter.each((n, value) => {
-                            if($(value).find('a[href^="https://help.twitter.com/using-twitter/how-to-tweet"]').length) {
-                                insertAfter = insertAfter.not($(value).nextAll()).not(value);
-                            }
-                        });
-                        insertAfter.last().after(injectedCode);
-                        $(tweet).find("div.instacard *").css({"background": "", "background-color": "", "color": "", "border": "", "border-radius": "", "box-shadow": ""})
-                        const refUrl = injectedCode.find("a").attr("href") || ('http://instagr.am/p/' + instaShort + '/');
-                        const image = $('<a href="'+refUrl+'" target="_blank"><img src="'+data.thumbnail_url+'" alt="'+data.title+'"></a>');
-                        injectedCode.find("[data-instgrm-permalink] > div > div").first()
-                            .html(image)
-                            .css({"padding": 0, "margin-top": 0});
-                    })
-                    // .catch(reason => {
-                    //     console.log(`An unknown error loading of ${instaUrl}. The reason: ${reason}`);
-                    // });
-            } else {
+                instaShort = instaUrlSplit[s];
+            }
+            if(!instaShort) {
                 return;
             }
-        // }
+            let par = tweet;
+            if(par.children.length === 1) {
+                par = par.children.item(0);
+                if(par.children.length >= 2) {
+                    par = par.children.item(1);
+                }
+            }
+            const width = Math.floor(par.clientWidth);
+
+            console.debug('instacard getEmbed', instaShort, width);
+
+            chrome.runtime.sendMessage(
+                {
+                    contentScriptQuery: "getEmbed", 
+                    instaId: instaShort,
+                    width: width
+                },
+                data => {
+                    console.debug('instacard embed data', data);
+                    const injectedCode = $(`
+                        <div class="instacard">
+                            <a href="${instaUrl}" target="_blank">
+                                <img class="instathumb" src="${data.thumbnail_url}">
+                            </a>
+                            <p class="instatext"></p>
+                            <div class="insta-author">
+                                <a href="https://www.instagram.com/${data.author_name}" target="_blank">@${data.author_name}</a>
+                            </div>
+                        </div>
+                    `);
+                    injectedCode.find(".instatext").text(data.title);
+                    let insertAfter = $(par).children();
+                    insertAfter = insertAfter.not('[aria-label*="Retweets"],[aria-label*="likes"]');
+                    insertAfter.each((n, value) => {
+                        if($(value).find('a[href^="https://help.twitter.com/using-twitter/how-to-tweet"]').length) {
+                            insertAfter = insertAfter.not($(value).nextAll()).not(value);
+                        }
+                    });
+                    insertAfter.last().after(injectedCode);
+                    $(tweet).find("div.instacard *").css({"background": "", "background-color": "", "color": "", "border": "", "border-radius": "", "box-shadow": ""})
+                    const refUrl = injectedCode.find("a").attr("href") || ('http://instagr.am/p/' + instaShort + '/');
+                    const image = $('<a href="'+refUrl+'" target="_blank"><img src="'+data.thumbnail_url+'" alt="'+data.title+'"></a>');
+                    injectedCode.find("[data-instgrm-permalink] > div > div").first()
+                        .html(image)
+                        .css({"padding": 0, "margin-top": 0});
+                })
+                .catch(reason => {
+                    console.warn(`An unknown error loading of ${instaUrl}. The reason: ${reason}`);
+                });
+        } else {
+            return;
+        }
     };
 
     // tweet stream
     const streamItemsNew = $("#react-root");
     const processTweet = function(tweet) {
-        // if(!tweet.classList.contains('insta-promo')) {
-            try {
-                const comp = findReactComponent(tweet);
-                if(comp) {
-                    if(comp.props && comp.props.id && typeof comp.props.id === 'string' && comp.props.id.indexOf('promoted') >= 0) {
-                        console.info("instacard remove promoted - react", tweet);
-                        // tweet.remove();
-                        tweet.classList.add('insta-promo-react');
-                        // return;
-                    }
-                    // tweet.classList.add('insta-promo-react');
-                } else {
-                    const promoIcons = tweet.querySelectorAll('[d="M20.75 2H3.25C2.007 2 1 3.007 1 4.25v15.5C1 20.993 2.007 22 3.25 22h17.5c1.243 0 2.25-1.007 2.25-2.25V4.25C23 3.007 21.993 2 20.75 2zM17.5 13.504c0 .483-.392.875-.875.875s-.875-.393-.875-.876V9.967l-7.547 7.546c-.17.17-.395.256-.62.256s-.447-.086-.618-.257c-.342-.342-.342-.896 0-1.237l7.547-7.547h-3.54c-.482 0-.874-.393-.874-.876s.392-.875.875-.875h5.65c.483 0 .875.39.875.874v5.65z"]');
-                    if(promoIcons.length > 0) {
-                        console.info("instacard remove promoted - icon", tweet);
-                        // tweet.remove();
-                        tweet.classList.add('insta-promo-icon');
-                        // return;
-                    } else if(tweet.innerText.indexOf('Promoted') >= 0) {
-                        console.info("instacard remove promoted - innerText", tweet);
-                        // tweet.remove();
-                        tweet.classList.add('insta-promo-innertext');
-                        // return;
-                    }
+        try {
+            const comp = findReactComponent(tweet);
+            if(comp) {
+                if(comp.props && comp.props.id && typeof comp.props.id === 'string' && comp.props.id.indexOf('promoted') >= 0) {
+                    console.info("instacard remove promoted - react", tweet);
+                    tweet.classList.add('insta-promo-react');
                 }
-                // tweet.classList.add('insta-promo');
-            } catch(ex) {
-                console.warn("insta-promo scan error", ex);
+            } else {
+                const promoIcons = tweet.querySelectorAll('[d="M20.75 2H3.25C2.007 2 1 3.007 1 4.25v15.5C1 20.993 2.007 22 3.25 22h17.5c1.243 0 2.25-1.007 2.25-2.25V4.25C23 3.007 21.993 2 20.75 2zM17.5 13.504c0 .483-.392.875-.875.875s-.875-.393-.875-.876V9.967l-7.547 7.546c-.17.17-.395.256-.62.256s-.447-.086-.618-.257c-.342-.342-.342-.896 0-1.237l7.547-7.547h-3.54c-.482 0-.874-.393-.874-.876s.392-.875.875-.875h5.65c.483 0 .875.39.875.874v5.65z"]');
+                if(promoIcons.length > 0) {
+                    console.info("instacard remove promoted - icon", tweet);
+                    tweet.classList.add('insta-promo-icon');
+                } else if(tweet.innerText.indexOf('Promoted') >= 0) {
+                    console.info("instacard remove promoted - innerText", tweet);
+                    tweet.classList.add('insta-promo-innertext');
+                }
             }
-        // }
+        } catch(ex) {
+            console.warn("insta-promo scan error", ex);
+        }
         if(!tweet.classList.contains('insta-promo')) {
             try {
                 addInstaNew(tweet);
-                // tweet.classList.add('insta-gram');
             } catch(ex) {
                 console.warn("insta-gram scan error", ex);
             }
@@ -211,10 +197,12 @@
                     return $(".instacard-top", this).length === 0;
                 });
             if(timelines.length === 0) return;
+
             let tweetParent = timelines.children().first();
             while(tweetParent && tweetParent.children().length > 0 && tweetParent.children().first()[0].style.cssText) {
                 tweetParent = tweetParent.children().first();
             }
+
             const newParents = [];
             tweetParent.each(function(index, element) {
                 if(tweetParents.indexOf(element) < 0) {
@@ -222,9 +210,11 @@
                 }
                 newParents.push(element);
             }).addClass("instacard-top");
+
             if(newParents.length > 0) {
                 console.info("instacard - found new tweet parents: ", newParents.length);
                 for(let p = 0; p < newParents.length; p++) {
+                    // observe this tweet parent - tweets will be loading under it
                     new MutationObserver(scanTweets)
                         .observe(newParents[p], {
                             childList: true,
@@ -232,19 +222,20 @@
                             subtree: false
                         });
                 }
-                scanTweets();
+                scanTweets(); // process existing tweets
             } else {
-                console.info("instacard - couldn't find tweet root, retrying...", tweetParent);
+                console.debug("instacard - couldn't find tweet root, retrying...", tweetParent);
                 findTweetRootRetry = setTimeout(findTweetRoot, 200);
             }
         } else {
-            console.info("instacard - couldn't find timeline, retrying...", timelines);
+            console.debug("instacard - couldn't find timeline, retrying...", timelines);
             findTweetRootRetry = setTimeout(findTweetRoot, 300);
         }
     };
 
-    findTweetRoot();
+    findTweetRoot(); // initialize everything by finding first tweet parents
 
+    // if the react root has mutations, check that all the tweet parents are still valid, otherwise look for them again
     new MutationObserver(() => {
         let removed = 0;
         for(let p = tweetParents.length - 1; p >= 0; p--) {

@@ -1,9 +1,20 @@
 (function () {
+    const findReactComponent = function(el) {
+        for (const key in el) {
+          if (key.startsWith('__reactInternalInstance$')) {
+            const fiberNode = el[key];
+      
+            return fiberNode && fiberNode.return && fiberNode.return.stateNode;
+          }
+        }
+        return null;
+    };
+
     const resolve = (path, obj) => {
         return path.split('.').reduce(function (prev, curr) {
             return prev ? prev[curr] : undefined
         }, obj || self)
-    }
+    };
 
     var injectScriptWaiter = null;
 
@@ -56,23 +67,13 @@
                 }, 200);
             })
             .catch(reason => {
-                console.log(`An unknown error loading of ${instaUrl}. The reason: ${reason}`);
+                console.warn(`An unknown error loading of ${instaUrl}. The reason: ${reason}`);
             });
     };
 
-    const addInsta = (tweet) => {
-        if (!tweet.hasClass('instaProcessed')) {
-            tweet.addClass('instaProcessed');
-
-            const quote = tweet.find(".QuoteTweet");
-            if(quote.length) {
-                addInstaQuote(quote);
-            }
-
-            const text = tweet.find(".js-tweet-text").text();
-            if (!text || ((text.indexOf("instagr.am") == -1) && (text.indexOf("instagram.com") == -1))) {
-                return;
-            }
+    const addInstaNew = (tweet) => {
+        // if(!tweet.classList.contains('insta-gram')) {
+        //     tweet.classList.add('insta-gram');
 
             const text = tweet.innerText;
             if(/\/\/(www.)?((instagram.com)|(instagr.am))\/p\/[A-Za-z0-9]+/gi.test(text)) {
@@ -146,129 +147,118 @@
         // }
     };
 
+    // tweet stream
+    const streamItemsNew = $("#react-root");
+    const processTweet = function(tweet) {
+        // if(!tweet.classList.contains('insta-promo')) {
+            try {
+                const comp = findReactComponent(tweet);
+                if(comp) {
+                    if(comp.props && comp.props.id && typeof comp.props.id === 'string' && comp.props.id.indexOf('promoted') >= 0) {
+                        console.info("instacard remove promoted - react", tweet);
+                        // tweet.remove();
+                        tweet.classList.add('insta-promo-react');
+                        // return;
+                    }
+                    // tweet.classList.add('insta-promo-react');
+                } else {
+                    const promoIcons = tweet.querySelectorAll('[d="M20.75 2H3.25C2.007 2 1 3.007 1 4.25v15.5C1 20.993 2.007 22 3.25 22h17.5c1.243 0 2.25-1.007 2.25-2.25V4.25C23 3.007 21.993 2 20.75 2zM17.5 13.504c0 .483-.392.875-.875.875s-.875-.393-.875-.876V9.967l-7.547 7.546c-.17.17-.395.256-.62.256s-.447-.086-.618-.257c-.342-.342-.342-.896 0-1.237l7.547-7.547h-3.54c-.482 0-.874-.393-.874-.876s.392-.875.875-.875h5.65c.483 0 .875.39.875.874v5.65z"]');
+                    if(promoIcons.length > 0) {
+                        console.info("instacard remove promoted - icon", tweet);
+                        // tweet.remove();
+                        tweet.classList.add('insta-promo-icon');
+                        // return;
+                    } else if(tweet.innerText.indexOf('Promoted') >= 0) {
+                        console.info("instacard remove promoted - innerText", tweet);
+                        // tweet.remove();
+                        tweet.classList.add('insta-promo-innertext');
+                        // return;
+                    }
                 }
+                // tweet.classList.add('insta-promo');
+            } catch(ex) {
+                console.warn("insta-promo scan error", ex);
             }
+        // }
+        if(!tweet.classList.contains('insta-promo')) {
+            try {
+                addInstaNew(tweet);
+                // tweet.classList.add('insta-gram');
+            } catch(ex) {
+                console.warn("insta-gram scan error", ex);
             }
+        }
+        tweet.classList.add('instacard');
+        tweet.classList.remove('insta-scanning');
+    };
+    const tweetParents = [];
+    const scanTweets = function() {
+        for(let p = 0; p < tweetParents.length; p++) {
+            const tweetsToScan = $(tweetParents[p]).children().not(".insta-scanning,.instacard").addClass('insta-scanning');
+            if(tweetsToScan.length === 0) continue;
+            console.info("instacard - mutation, scanning " + tweetsToScan.length + " tweets");
+            tweetsToScan.each((index, tweet) => {
+                processTweet(tweet);
+            });
+        }
+    };
+    const findTweetRoot = function() {
+        let timelines = $('div[aria-label^="Timeline\: "]', streamItemsNew)
+            .not('[aria-label="Timeline\: Trending now"]');
+        if(timelines.length > 0) {
+            timelines = timelines.not('.instacard-top')
+                .filter(function() {
+                    return $(".instacard-top", this).length === 0;
+                });
+            if(timelines.length === 0) return;
+            let tweetParent = timelines.children().first();
+            while(tweetParent && tweetParent.children().length > 0 && tweetParent.children().first()[0].style.cssText) {
+                tweetParent = tweetParent.children().first();
+            }
+            const newParents = [];
+            tweetParent.each(function(index, element) {
+                if(tweetParents.indexOf(element) < 0) {
+                    tweetParents.push(element);
+                }
+                newParents.push(element);
+            }).addClass("instacard-top");
+            if(newParents.length > 0) {
+                console.info("instacard - found new tweet parents: ", newParents.length);
+                for(let p = 0; p < newParents.length; p++) {
+                    new MutationObserver(scanTweets)
+                        .observe(newParents[p], {
+                            childList: true,
+                            attributes: false,
+                            subtree: false
+                        });
+                }
+                scanTweets();
+            } else {
+                console.info("instacard - couldn't find tweet root, retrying...", tweetParent);
+                findTweetRootRetry = setTimeout(findTweetRoot, 200);
+            }
+        } else {
+            console.info("instacard - couldn't find timeline, retrying...", timelines);
+            findTweetRootRetry = setTimeout(findTweetRoot, 300);
         }
     };
 
-    // single post
-    const permalinkOverlay = $("#permalink-overlay");
-        if(permalinkOverlay.length) {
-        new MutationObserver(() => {
-            if (permalinkOverlay.is(":visible")) {
-                permalinkOverlay.find(".permalink .permalink-tweet").each((n, value) => {
-                    addInsta($(value));
-                });
+    findTweetRoot();
+
+    new MutationObserver(() => {
+        let removed = 0;
+        for(let p = tweetParents.length - 1; p >= 0; p--) {
+            if(!tweetParents[p] || !tweetParents[p].parentElement) {
+                tweetParents.splice(p, 1);
+                removed++;
             }
-        }).observe(permalinkOverlay[0], {
-            attributes: true,
-            subtree: true,
-        });
-    }
-
-    // tweet stream
-    const streamItems = $("#stream-items-id");
-    const streamItemsNew = $("#react-root");
-
-    if(streamItems.length) {
-        new MutationObserver(() => {
-            streamItems.children('.js-stream-item:not(.instaProcessed)[data-item-type=tweet]').each((n, value) => {
-                addInsta($(value));
-            });
-        }).observe(streamItems[0], {
-            childList: true
-        });
-
-        streamItems.children('.js-stream-item:not(.instaProcessed)[data-item-type=tweet]').each((n, value) => {
-            addInsta($(value));
-        });
-    } else if(streamItemsNew.length) {
-        let trending;// = streamItemsNew.find('div[aria-label="Timeline\: Trending now"]');
-        let timeline;// = streamItemsNew.find('div[aria-label^="Timeline\: "]').not(trending);
-        let whoToFollow;// = streamItemsNew.find('aside[aria-label="Who to follow"]');
-        // if(trending.length) {
-        //     console.log("[instacard] trending", trending);
-        // }
-        // if(timeline.length) {
-        //     console.log("[instacard] timeline", timeline);
-        // }
-        // if(whoToFollow) {
-        //     console.log("[instacard] whoToFollow", whoToFollow);
-        // }
-        new MutationObserver(() => {
-            // if(!trending.length) {
-                trending = streamItemsNew.find('div[aria-label="Timeline\: Trending now"]');
-            //     if(trending.length) {
-            //         console.log("[instacard] trending", trending);
-            //     }
-            // }
-            // if(!timeline.length) {
-                timeline = streamItemsNew.find('div[aria-label^="Timeline\: "]').not(trending);
-            //     if(timeline.length) {
-            //         console.log("[instacard] timeline", timeline);
-            //     }
-            // }
-            // if(!whoToFollow) {
-                let whoToFollow = streamItemsNew.find('aside[aria-label="Who to follow"]');
-            //     if(whoToFollow) {
-            //         console.log("[instacard] whoToFollow", whoToFollow);
-            //     }
-            // }
-            if(timeline.length) {
-                timeline.children().addClass("instacard-top");
-                timeline.find('.instacard-top div:not([class]) > div[class] h2[aria-level="2"][role="heading"]:not(.instaAdProcessed)').each((n, value) => {
-                    if($(value).text().toLowerCase().indexOf("promoted") === 0) {
-                        $(value).parents("div:not([class]),div.instaAdProcessed").not(timeline).not(timeline.parents()).first().addClass('instacard-ad instaProcessed instaAdProcessed');
-                        // console.warn("[instacard] 'Promoted Tweet' ad found", value, value2, par);
-                    }
-                    $(value).addClass("instaAdProcessed");
-                });
-                timeline.find(
-                    '.instacard-top div:not([class]) > div[class] div[aria-haspopup="false"][role="button"][data-focusable="true"][tabindex="0"]:not(.instaAdProcessed,.instaProcessed),' +
-                    '.instacard-top div:not([class]) > div[class] article[role="article"]:not(.instaAdProcessed,.instaProcessed)'
-                ).each((n, value) => {
-                    let found = false;
-                    $("span,svg", value).each((n2, value2) => {
-                        if($(value2).parent().text().indexOf("Promoted by ") === 0 || $(value2).parent().text().toLowerCase().indexOf("promoted") === 0) {
-                            $(value).parent().parents("div:not([class]),div.instaAdProcessed").not(timeline).not(timeline.parents()).first().addClass('instacard-ad instaProcessed instaAdProcessed');
-                            // console.warn("[instacard] 'Promoted by' ad found", value, value2, par);
-                            found = true;
-                            return false;
-                        }
-                    });
-                    if(!found) {
-                        addInstaNew($(value));
-                        $(value).parent().parents("div:not([class]),div.instaAdProcessed").not(timeline).not(timeline.parents()).first().addClass('instaAdProcessed');
-                    }
-                    $(value).addClass("instaAdProcessed");
-                });
-            }
-            if(trending.length) {
-                trending.children().addClass("instacard-top");
-                trending.find('.instacard-top div[data-focusable="true"]:not(.instaAdProcessed) > div:last-child').each((n, value) => {
-                    const par = $(value).parent();
-                    if($(value).text().toLowerCase().indexOf("promoted") === 0) {
-                        par.addClass('instacard-ad instaAdProcessed');
-                    } else {
-                        par.addClass('instaAdProcessed');
-                    }
-                });
-            }
-        }).observe(streamItemsNew[0], {
-            childList: true,
-            subtree: true
-        });
-
-
-        const body = $("body");
-        new MutationObserver(() => {
-            var isDark = body.css("background-color") !== "rgb(255, 255, 255)";
-            body.toggleClass('instacardDark', isDark);
-        })
-        .observe(body[0], {
-            attributes: true
-        });
-        body.addClass('instacard-new');
-    }
+        }
+        if(removed > 0 || tweetParents.length === 0) {
+            findTweetRoot();
+        }
+    }).observe(streamItemsNew[0], {
+        childList: true,
+        attributes: false,
+        subtree: true
+    });
 })();

@@ -90,6 +90,10 @@
     color: rgb(255, 255, 255) !important;
 }
 
-.instacard-ad {
+.instacard-ad,
+.insta-promo,
+.insta-promo-innertext,
+.insta-promo-icon,
+.insta-promo-react {
     display: none !important;
 }

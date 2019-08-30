@@ -65,9 +65,6 @@
                     // script.setAttribute("defer", "");
                     document.head.appendChild(script);
                 }, 200);
-            })
-            .catch(reason => {
-                console.warn(`An unknown error loading of ${instaUrl}. The reason: ${reason}`);
             });
     };
 
@@ -90,13 +87,8 @@
             if(!instaShort) {
                 return;
             }
-            let par = tweet;
-            if(par.children.length === 1) {
-                par = par.children.item(0);
-                if(par.children.length >= 2) {
-                    par = par.children.item(1);
-                }
-            }
+            let actionbar = $('div[role="group"]', tweet).last();
+            let par = actionbar.parent()[0];
             const width = Math.floor(par.clientWidth);
 
             console.debug('instacard getEmbed', instaShort, width);
@@ -109,35 +101,55 @@
                 },
                 data => {
                     console.debug('instacard embed data', data);
-                    const injectedCode = $(`
-                        <div class="instacard">
-                            <a href="${instaUrl}" target="_blank">
-                                <img class="instathumb" src="${data.thumbnail_url}">
-                            </a>
-                            <p class="instatext"></p>
-                            <div class="insta-author">
-                                <a href="https://www.instagram.com/${data.author_name}" target="_blank">@${data.author_name}</a>
-                            </div>
-                        </div>
+                    const apiHtml = $(data.html);
+                    apiHtml.find("a[href]").first().html(`
+                        <img class="instathumb" src="${data.thumbnail_url}">
                     `);
-                    injectedCode.find(".instatext").text(data.title);
-                    let insertAfter = $(par).children();
-                    insertAfter = insertAfter.not('[aria-label*="Retweets"],[aria-label*="likes"]');
-                    insertAfter.each((n, value) => {
-                        if($(value).find('a[href^="https://help.twitter.com/using-twitter/how-to-tweet"]').length) {
-                            insertAfter = insertAfter.not($(value).nextAll()).not(value);
-                        }
-                    });
-                    insertAfter.last().after(injectedCode);
-                    $(tweet).find("div.instacard *").css({"background": "", "background-color": "", "color": "", "border": "", "border-radius": "", "box-shadow": ""})
-                    const refUrl = injectedCode.find("a").attr("href") || ('http://instagr.am/p/' + instaShort + '/');
-                    const image = $('<a href="'+refUrl+'" target="_blank"><img src="'+data.thumbnail_url+'" alt="'+data.title+'"></a>');
-                    injectedCode.find("[data-instgrm-permalink] > div > div").first()
-                        .html(image)
-                        .css({"padding": 0, "margin-top": 0});
-                })
-                .catch(reason => {
-                    console.warn(`An unknown error loading of ${instaUrl}. The reason: ${reason}`);
+                    // const injectedCode = $(`
+                    //     <div class="instacard-photo">
+                    //         <a href="${instaUrl}" target="_blank">
+                    //             <img class="instathumb" src="${data.thumbnail_url}">
+                    //         </a>
+                    //         <p class="instatext"></p>
+                    //         <div class="insta-author">
+                    //             <a href="https://www.instagram.com/${data.author_name}" target="_blank">@${data.author_name}</a>
+                    //         </div>
+                    //     </div>
+                    // `);
+                    // injectedCode.find(".instatext").text(data.title);
+                    // injectedCode.find("*")
+                    //     .css({
+                    //         "background": "", 
+                    //         "background-color": "", 
+                    //         "color": "", 
+                    //         "border": "", 
+                    //         "border-radius": "", 
+                    //         "box-shadow": ""
+                    //     });
+                    // let insertAfter = $(par).children();
+                    // insertAfter = insertAfter.not('[aria-label*="Retweets"],[aria-label*="likes"]');
+                    // insertAfter.each((n, value) => {
+                    //     if($(value).find('a[href^="https://help.twitter.com/using-twitter/how-to-tweet"]').length) {
+                    //         insertAfter = insertAfter.not($(value).nextAll()).not(value);
+                    //     }
+                    // });
+                    // insertAfter.last().after(injectedCode);
+                    // actionbar.before(injectedCode);
+                    actionbar.before(apiHtml);
+                    // $(tweet).find("div.instacard-photo *")
+                    //     .css({
+                    //         "background": "", 
+                    //         "background-color": "", 
+                    //         "color": "", 
+                    //         "border": "", 
+                    //         "border-radius": "", 
+                    //         "box-shadow": ""
+                    //     });
+                    // const refUrl = injectedCode.find("a").attr("href") || ('http://instagr.am/p/' + instaShort + '/');
+                    // const image = $('<a href="'+refUrl+'" target="_blank"><img src="'+data.thumbnail_url+'" alt="'+data.title+'"></a>');
+                    // injectedCode.find("[data-instgrm-permalink] > div > div").first()
+                    //     .html(image)
+                    //     .css({"padding": 0, "margin-top": 0});
                 });
         } else {
             return;

@@ -4,7 +4,9 @@
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     margin: 10px 0 0 0;
+
 }
+
 .instacard-new .instacard {
     border: 1px solid rgb(204, 214, 221);
     border-radius: 14px;
@@ -51,6 +53,7 @@
     color: black;
     border-radius: 2px;
 }
+
 .instacard-new .instacard .video-info {
     background-color: inherit;
     color: inherit;
@@ -67,11 +70,13 @@
     width: 100%;
     margin: 0;
 }
+
 .instacard .instatext {
     margin: 15px 20px 0 20px;
     font-size: small;
     color: rgb(101, 119, 134);
 }
+
 .instacardDark .instacard .instatext {
     color: rgb(136, 153, 166);
 }
@@ -80,6 +85,7 @@
     float: right;
     margin: 5px 20px 0 20px;
 }
+
 .instacard .insta-author a {
     color: rgb(20, 23, 26) !important;
     text-decoration: none;
@@ -96,4 +102,377 @@
 .insta-promo-icon,
 .insta-promo-react {
     display: none !important;
+}
+
+
+.instagram-media {
+    background: #FFF;
+    border: 0;
+    border-radius: 3px;
+    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.5), 0 1px 10px 0 rgba(0, 0, 0, 0.15);
+    /* max-width: 540px;
+    min-width: 326px; */
+    padding: 0;
+    width: 99.375%;
+    width: -webkit-calc(100% - 2px);
+    width: calc(100% - 2px);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: black;
+    margin: 12px 1px;
+}
+
+.instagram-media a:-webkit-any-link {
+    color: black;
+    text-decoration: none;
+}
+
+.instagram-media .insta-container {
+    padding: 16px;
+}
+
+.instagram-media .insta-media-content {
+    background: #FFFFFF;
+    line-height: 0;
+    padding: 0 0;
+    text-align: center;
+    text-decoration: none;
+    width: 100%;
+    position: relative;
+}
+
+.insta-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.insta-profile-picture {
+    background-color: #F4F4F4;
+    border-radius: 50%;
+    flex-grow: 0;
+    height: 34px;
+    width: 34px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.insta-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+
+    -webkit-box-align: start;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    -webkit-flex-shrink: 1;
+    -ms-flex-negative: 1;
+    flex-shrink: 1;
+    -webkit-box-flex: 1;
+    -webkit-flex-grow: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    margin: 0 10px;
+    overflow: hidden;
+}
+
+.insta-user {
+    /* background-color: #F4F4F4;
+    border-radius: 4px; */
+    flex-grow: 0;
+    /* height: 14px; */
+    /* margin-bottom: 6px; */
+    /* width: 100px; */
+    /* overflow-x: hidden;
+    text-align: left;
+
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    vertical-align: baseline;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; */
+
+
+    color: rgb(38, 38, 38);
+    cursor: pointer;
+    display: block;
+    font-family: -apple-system, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    height: 18px;
+    line-height: 18px;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    padding: 0;
+    text-align: left;
+    text-overflow: ellipsis;
+    user-select: none;
+    vertical-align: baseline;
+    white-space: nowrap;
+    -webkit-box-direction: normal;
+}
+
+.insta-location {
+    /* background-color: #F4F4F4;
+    border-radius: 4px; */
+    flex-grow: 0;
+    /* height: 14px; */
+    /* width: 60px; */
+    /* overflow-x: hidden;
+    text-align: left; */
+
+    /* margin: 0;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    vertical-align: baseline;
+
+    -webkit-box-align: stretch;
+    -webkit-align-items: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+    border: 0 solid #000;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-flex-shrink: 0;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    position: relative;
+
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    color: #999;
+    line-height: 14px;
+    font-size: 12px; */
+
+
+    color: rgb(153, 153, 153);
+    cursor: pointer;
+    display: block;
+    font-family: -apple-system, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    height: 14px;
+    line-height: 14px;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    user-select: none;
+    vertical-align: baseline;
+    -webkit-box-direction: normal;
+}
+
+.insta-media {
+    width: 100%;
+    /* max-height: 60vh; */
+    overflow-x: auto;
+    white-space: nowrap;
+    min-height: 40px;
+}
+
+.insta-gal-btn {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: lightgrey;
+    box-shadow: 0px 0px 4px rgba(0,0,0,0.5);
+    cursor: pointer;
+    line-height: 26px;
+    font-weight: 600;
+    font-family: initial;
+    text-align: center;
+    color: rgba(0,0,0,0.6);
+}
+
+.insta-gal-right {
+    right: 8px;
+}
+.insta-gal-left {
+    left: 8px;
+}
+
+.insta-media a {
+    display: block;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+}
+
+.insta-media img {
+    /* margin: 0 auto; */
+    /* max-width: 100%;
+    height: 100%; */
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+}
+
+.insta-media video {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+}
+
+.insta-media[data-graph='GraphSidecar'] {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.insta-media[data-graph='GraphSidecar'] img {
+    /* display: inline-block; */
+}
+
+.insta-actions {
+    display: flex;
+    flex-direction: row;
+    margin: 8px 2px;
+    align-items: center;
+}
+
+.insta-heart {
+    width: 24px;
+    height: 24px;
+    position: relative;
+}
+
+.insta-heart-container {
+    transform: rotate(-45deg) translateX(2px);
+    width: 18.75px;
+    height: 18.75px;
+}
+
+.insta-heart .insta-heart-1,
+.insta-heart .insta-heart-2,
+.insta-heart .insta-heart-3 {
+    background-color: #F4F4F4;
+    height: 12.5px;
+    width: 12.5px;
+    position: absolute;
+}
+
+.insta-heart.liked .insta-heart-1,
+.insta-heart.liked .insta-heart-2,
+.insta-heart.liked .insta-heart-3 {
+    background-color: #ed4956;
+}
+
+.insta-heart .insta-heart-1 {
+    border-radius: 50%;
+}
+
+.insta-heart .insta-heart-2 {
+    top: 6.25px;
+}
+
+.insta-heart .insta-heart-3 {
+    border-radius: 50%;
+    left: 6.25px;
+    top: 6.25px;
+}
+
+.insta-comment {
+    margin-left: 8px;
+}
+
+.insta-comment .insta-comment-1 {
+    background-color: #F4F4F4;
+    border-radius: 50%;
+    flex-grow: 0;
+    height: 20px;
+    width: 20px;
+}
+
+.insta-comment .insta-comment-2 {
+    width: 0;
+    height: 0;
+    border-top: 2px solid transparent;
+    border-left: 6px solid #f4f4f4;
+    border-bottom: 2px solid transparent;
+    transform: translateX(16px) translateY(-4px) rotate(30deg)
+}
+
+.insta-comment.present .insta-comment-1 {
+    background-color: #262626;
+}
+
+.insta-comment.present .insta-comment-2 {
+    border-left-color: #262626;
+}
+
+.insta-bookmark {
+    margin-left: auto;
+}
+
+.insta-bookmark .insta-bookmark-1 {
+    width: 0px;
+    border-top: 8px solid #F4F4F4;
+    border-right: 8px solid transparent;
+    transform: translateY(16px);
+}
+
+.insta-bookmark.saved .insta-bookmark-1,
+.insta-bookmark.saved .insta-bookmark-3 {
+    border-top-color: #262626;
+}
+
+.insta-bookmark.saved .insta-bookmark-2 {
+    background-color: #262626;
+}
+
+.insta-bookmark .insta-bookmark-2 {
+    background-color: #F4F4F4;
+    flex-grow: 0;
+    height: 12px;
+    width: 16px;
+    transform: translateY(-4px);
+}
+
+.insta-bookmark .insta-bookmark-3 {
+    width: 0;
+    height: 0;
+    border-top: 8px solid #F4F4F4;
+    border-left: 8px solid transparent;
+    transform: translateY(-4px) translateX(8px);
+}
+
+.insta-description {
+    margin: 8px 0 0 0;
+    padding: 0 4px;
+}
+
+.insta-description a {
+    color: #000;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 17px;
+    text-decoration: none;
+    word-wrap: break-word;
 }

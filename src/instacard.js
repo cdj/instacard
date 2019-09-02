@@ -18,6 +18,13 @@
 
     var injectScriptWaiter = null;
 
+    const isHighDensity = function() {
+        return ((window.matchMedia && (window.matchMedia('only screen and (min-resolution: 124dpi), only screen and (min-resolution: 1.3dppx), only screen and (min-resolution: 48.8dpcm)').matches || window.matchMedia('only screen and (-webkit-min-device-pixel-ratio: 1.3), only screen and (-o-min-device-pixel-ratio: 2.6/2), only screen and (min--moz-device-pixel-ratio: 1.3), only screen and (min-device-pixel-ratio: 1.3)').matches)) || (window.devicePixelRatio && window.devicePixelRatio > 1.3));
+    };
+    const isRetina = function() {
+        return ((window.matchMedia && (window.matchMedia('only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx), only screen and (min-resolution: 75.6dpcm)').matches || window.matchMedia('only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min--moz-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2)').matches)) || (window.devicePixelRatio && window.devicePixelRatio >= 2)) && /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+    }
+
     // images for retweets w/ comments
     const addInstaQuote = (tweet) => {
         const text = tweet.find(".QuoteTweet-text").text();
@@ -69,7 +76,6 @@
     };
 
     const addInstaNew = (tweet) => {
-
         const text = tweet.innerText;
         if(/\/\/(www.)?((instagram.com)|(instagr.am))\/p\/[A-Za-z0-9]+/gi.test(text)) {
             const instaUrl = $(tweet).find('a[title*="instagr"]').attr('title');
@@ -87,11 +93,34 @@
             if(!instaShort) {
                 return;
             }
-            let actionbar = $('div[role="group"]', tweet).last();
-            let par = actionbar.parent()[0];
-            const width = Math.floor(par.clientWidth);
 
-            console.debug('instacard getEmbed', instaShort, width);
+            let $afterMedia = null;
+
+            const existingMedia = $(tweet).find("a[href] div[aria-label='Image'] img[alt='Image'][draggable='false'][src],video[preload='none'][playsinline][src],blockquote.instagram-media");
+            if(existingMedia.length > 0) {
+                console.debug("instacard - tweet already contains media", tweet, existingMedia);
+                $(tweet).addClass('insta-has-media');
+                return;
+            } else {
+                const $tweetText = $(tweet).find(`div[lang="en"][dir="auto"]`);
+                const next = $tweetText.next();
+
+                if(next.attr('role') === "group") {
+                    // this is the actions - like, retweet, etc
+                    $afterMedia = next;
+                } else if(next.find(`a[href^="${CSS.escape("https://help.twitter.com/using-twitter/how-to-tweet")}"]`).length > 0) {
+                    // this is the date/time div
+                    $afterMedia = next;
+                } else {
+                    console.debug("instacard - tweet probably already contains media", tweet, existingMedia);
+                    $(tweet).addClass('insta-probably-has-media');
+                    return;
+                }
+            }
+            let par = $afterMedia.parent()[0];
+            const width = Math.floor(par.clientWidth);
+            console.debug('instacard getEmbed', instaShort, width, existingMedia);
+            console.log(tweet.innerHTML);
 
             chrome.runtime.sendMessage(
                 {
@@ -100,11 +129,183 @@
                     width: width
                 },
                 data => {
+                    if(data.error) {
+                        console.warn(data.error);
+                        $(tweet).find('a[title*="instagr"]').append(`<span>⚠️</span>`);
+                        return;
+                    }
                     console.debug('instacard embed data', data);
-                    const apiHtml = $(data.html);
-                    apiHtml.find("a[href]").first().html(`
-                        <img class="instathumb" src="${data.thumbnail_url}">
-                    `);
+                    // const apiHtml = $(data.html);
+                    // apiHtml.find("a[href]").first().html(`
+                    //     <img class="instathumb" src="${data.thumbnail_url}">
+                    // `);
+                    const scrape = data;
+                    const $content = $();
+                    
+                    for(let p = 0; p < scrape.PostPage.length; p++) {
+                        const media = scrape.PostPage[p].graphql.shortcode_media;
+
+                        const injHtml = `
+                            <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/p/${instaShort}/" data-instgrm-version="12">
+                                <div class="insta-container"> 
+                                    <div class="insta-media-content">
+                                        <a href="https://www.instagram.com/${media.owner.username}/" target="_blank">
+                                            <div class="insta-header">
+                                                <div class="insta-profile-picture">
+                                                    <img src="${media.owner.profile_pic_url}" alt="${media.owner.full_name}">
+                                                </div>
+                                                <div class="insta-details">
+                                                    <div class="insta-user">${media.owner.username}</div>
+                                                    ${media.location ? `<div class="insta-location">${media.location.name}</div>` : ``}
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <div class="insta-media">
+                                        </div>
+                                    </div>
+                                </div>
+                            </blockquote>
+                        `;
+
+                        const $page = $(injHtml);
+                        const $media = $page.find(".insta-media")
+                            .attr('data-graph', media.__typename);
+
+                        if(
+                            media.viewer_has_liked || 
+                            (!media.comments_disabled && media.edge_media_to_parent_comment && media.edge_media_to_parent_comment.count) ||
+                            media.viewer_has_saved
+                        ) {
+                            $page.find(".insta-media-content").append(`
+                                <div class="insta-actions">
+                                    <div class="insta-heart${media.viewer_has_liked ? ` liked` : ``}">
+                                        <div class="insta-heart-container">
+                                            <div class="insta-heart-1"></div>
+                                            <div class="insta-heart-2"></div>
+                                            <div class="insta-heart-3"></div>
+                                        </div>
+                                    </div>
+                                    ${media.comments_disabled ? `` : 
+                                    `<div class="insta-comment${media.edge_media_to_parent_comment && media.edge_media_to_parent_comment.count ? ` present`: ``}">
+                                        <div class="insta-comment-1"></div>
+                                        <div class="insta-comment-2"></div>
+                                    </div>`}
+                                    <div class="insta-bookmark${media.viewer_has_saved ? `saved` : ``}">
+                                        <div class="insta-bookmark-1"></div>
+                                        <div class="insta-bookmark-2"></div>
+                                        <div class="insta-bookmark-3"></div>
+                                    </div>
+                                </div>
+                            `);
+                        }
+
+                        switch(media.__typename) {
+                            case "GraphImage":
+                                const postLink = document.createElement('a');
+                                const img = document.createElement('img');
+                                img.crossOrigin = "anonymous";
+                                img.src = media.display_url;
+                                img.alt = media.accessibility_caption;
+                                postLink.appendChild(img);
+                                postLink.setAttribute('target', '_blank')
+                                postLink.href = `https://www.instagram.com/p/${instaShort}/`;
+                                $media.append(postLink);
+                                break;
+                            case "GraphSidecar":
+                                let tallest = 0;
+                                media.edge_sidecar_to_children.edges.forEach(el => {
+                                    const node = el.node;
+                                    const h = width / node.dimensions.width * node.dimensions.height;
+                                    if(tallest < h) tallest = h;
+                                });
+                                for(let c = 0; c < media.edge_sidecar_to_children.edges.length; c++) {
+                                    const node = media.edge_sidecar_to_children.edges[c].node;
+                                    switch(node.__typename) {
+                                        case "GraphImage":
+                                            const postGalLink = document.createElement('a');
+                                            const imgGal = document.createElement('img');
+                                            imgGal.crossOrigin = "anonymous";
+                                            imgGal.src = node.display_url;
+                                            imgGal.alt = node.accessibility_caption;
+                                            postGalLink.appendChild(imgGal);
+                                            postGalLink.setAttribute('target', '_blank')
+                                            postGalLink.href = `https://www.instagram.com/p/${instaShort}/`;
+                                            $media.append(postGalLink);
+                                            break;
+                                        case "GraphVideo":
+                                            const vidGal = document.createElement('video');
+                                            vidGal.crossOrigin = "anonymous";
+                                            vidGal.preload = "none";
+                                            vidGal.setAttribute('playsinline', 'playsinline');
+                                            vidGal.setAttribute('controls', 'controls');
+                                            vidGal.setAttribute('type', 'video/mp4');
+                                            vidGal.poster = media.display_url;
+                                            vidGal.src = media.video_url;
+                                            $media.append(vidGal);
+                                            break;
+                                        default:
+                                            console.warn("instacard - unknown type in gallery", node);
+                                    }
+                                }
+                                if(media.edge_sidecar_to_children.edges.length > 1) {
+                                    const left = $(`<div class="insta-gal-btn insta-gal-left">&lt;</div>`);
+                                    const right = $(`<div class="insta-gal-btn insta-gal-right">&gt;</div>`);
+                                    left.click((e) => {
+                                        e.stopPropagation();
+                                        console.log(e, $media[0], $media.scrollLeft);
+                                        const container = $media[0];
+                                        const galWidth = container.parentElement.scrollWidth;
+                                        let nextPosition = Math.round((container.scrollLeft / galWidth) - 1);
+                                        if(nextPosition < 0) {
+                                            nextPosition = media.edge_sidecar_to_children.edges.length - 1;
+                                        }
+                                        // container.scrollLeft = nextPosition * galWidth;
+                                        $(container).stop(true).animate({scrollLeft: nextPosition * galWidth}, 150);
+                                    });
+                                    right.click((e) => {
+                                        e.stopPropagation();
+                                        console.log(e, $media[0], $media.scrollLeft);
+                                        const container = $media[0];
+                                        const galWidth = container.parentElement.scrollWidth;
+                                        let nextPosition = Math.round((container.scrollLeft / galWidth) + 1);
+                                        if(nextPosition >= media.edge_sidecar_to_children.edges.length) {
+                                            nextPosition = 0;
+                                        }
+                                        // container.scrollLeft = nextPosition * galWidth;
+                                        $(container).stop(true).animate({scrollLeft: nextPosition * galWidth}, 150);
+                                    });
+                                    $media.append(left).append(right);
+                                }
+                                break;
+                            case "GraphVideo":
+                                const vid = document.createElement('video');
+                                vid.crossOrigin = "anonymous";
+                                vid.preload = "none";
+                                vid.setAttribute('playsinline', 'playsinline');
+                                vid.setAttribute('controls', 'controls');
+                                vid.setAttribute('type', 'video/mp4');
+                                vid.poster = media.display_url;
+                                vid.src = media.video_url;
+                                $media.append(vid);
+                                break;
+                            default:
+                                console.warn("instacard - unknown media", media);
+                        }
+
+                        for(let d = 0; d < media.edge_media_to_caption.edges.length; d++) {
+                            const $descContainer = $(`
+                                <p class="insta-description"> 
+                                    <a href="https://www.instagram.com/p/${instaShort}/" target="_blank"></a>
+                                </p>
+                            `);
+                            $descContainer.find("a").text(media.edge_media_to_caption.edges[d].node.text);
+                            $page.find(".insta-container").append($descContainer);
+                        }
+                        console.log("instacard - ready to inject", $afterMedia, $page);
+
+                        $afterMedia.before($page);
+                    }
+
                     // const injectedCode = $(`
                     //     <div class="instacard-photo">
                     //         <a href="${instaUrl}" target="_blank">
@@ -134,8 +335,8 @@
                     //     }
                     // });
                     // insertAfter.last().after(injectedCode);
-                    // actionbar.before(injectedCode);
-                    actionbar.before(apiHtml);
+                    // $afterMedia.before(injectedCode);
+                    // $afterMedia.before(apiHtml);
                     // $(tweet).find("div.instacard-photo *")
                     //     .css({
                     //         "background": "", 
@@ -189,7 +390,8 @@
         tweet.classList.add('instacard');
         tweet.classList.remove('insta-scanning');
     };
-    const tweetParents = [];
+    // const tweetParents = [];
+    window.tweetParents = [];
     const scanTweets = function() {
         for(let p = 0; p < tweetParents.length; p++) {
             const tweetsToScan = $(tweetParents[p]).children().not(".insta-scanning,.instacard").addClass('insta-scanning');
@@ -252,6 +454,7 @@
         let removed = 0;
         for(let p = tweetParents.length - 1; p >= 0; p--) {
             if(!tweetParents[p] || !tweetParents[p].parentElement) {
+                console.debug("instacart - removed parent", tweetParents[p]);
                 tweetParents.splice(p, 1);
                 removed++;
             }
@@ -263,5 +466,9 @@
         childList: true,
         attributes: false,
         subtree: true
+    });
+
+    window.addEventListener('popstate', function(event) {
+        findTweetRoot();
     });
 })();

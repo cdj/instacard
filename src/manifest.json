@@ -6,8 +6,8 @@
    },
    "content_scripts": [ {
       "css": [ "instacard.css" ],
-      "js": [ "jquery-3.1.1.slim.min.js", "instacard.js" ],
       "matches": [ "https://twitter.com/*" ],
+      "js": [ "jquery-3.1.1.min.js", "instacard.js" ],
       "run_at": "document_end"
    } ],
    "content_security_policy": "script-src 'self' https://api.instagram.com/ https://www.instagram.com/; frame-src 'self' https://api.instagram.com/ https://www.instagram.com/; object-src 'self'; default-src 'self' https://api.instagram.com/ https://www.instagram.com/",

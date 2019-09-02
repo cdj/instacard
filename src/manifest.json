@@ -19,7 +19,12 @@
    },
    "manifest_version": 2,
    "name": "InstaCard",
-   "permissions": [ "webRequest", "webRequestBlocking", "tabs", "*://*.twitter.com/*", "*://*.instagram.com/*", "*://*.cdninstagram.com/*", "*://*.fbcdn.net/*" ],
+   "permissions": [ 
+      "webRequest", 
+      "webRequestBlocking", 
+      "tabs", 
+      "*://*.twitter.com/*"
+   ],
    "short_name": "InstaCard",
    "version": "0.9.5"
 }

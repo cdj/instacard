@@ -250,7 +250,7 @@
                                 if(media.edge_sidecar_to_children.edges.length > 1) {
                                     const left = $(`<div class="insta-gal-btn insta-gal-left">&lt;</div>`);
                                     const right = $(`<div class="insta-gal-btn insta-gal-right">&gt;</div>`);
-                                    left.click((e) => {
+                                    left.on('click', (e) => {
                                         e.stopPropagation();
                                         console.log(e, $media[0], $media.scrollLeft);
                                         const container = $media[0];
@@ -262,7 +262,7 @@
                                         // container.scrollLeft = nextPosition * galWidth;
                                         $(container).stop(true).animate({scrollLeft: nextPosition * galWidth}, 150);
                                     });
-                                    right.click((e) => {
+                                    right.on('click', (e) => {
                                         e.stopPropagation();
                                         console.log(e, $media[0], $media.scrollLeft);
                                         const container = $media[0];

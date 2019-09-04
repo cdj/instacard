@@ -39,11 +39,11 @@ chrome.webRequest.onHeadersReceived.addListener(function(details) {
         isCSPHeader = /content-security-policy/i.test(details.responseHeaders[i].name);
         if (isCSPHeader) {
             var csp = details.responseHeaders[i].value;
-            // img-src 'self' blob: data: https://*.cdn.twitter.com https://ton.twitter.com https://*.twimg.com https://www.google-analytics.com https://www.periscope.tv https://www.pscp.tv https://media.riffsy.com https://*.giphy.com https://*.pscp.tv"
-            // img-src https: data: blob:; font-src https: data:;
+            // twitter's existing => img-src 'self' blob: data: https://*.cdn.twitter.com https://ton.twitter.com https://*.twimg.com https://www.google-analytics.com https://www.periscope.tv https://www.pscp.tv https://media.riffsy.com https://*.giphy.com https://*.pscp.tv"
+            // instagram's existing => img-src https: data: blob:; font-src https: data:;
             csp = csp.replace(/img-src [^;]+;/gi, `img-src 'self' https: data: blob:;`);
-            // media-src 'self' blob: https://twitter.com https://*.twimg.com https://*.vine.co https://*.pscp.tv https://*.video.pscp.tv https://*.giphy.com https://media.riffsy.com https://mdhdsnappytv-vh.akamaihd.net https://mpdhdsnappytv-vh.akamaihd.net https://mmdhdsnappytv-vh.akamaihd.net https://smdhdsnappytv-vh.akamaihd.net https://smpdhdsnappytv-vh.akamaihd.net https://smmdhdsnappytv-vh.akamaihd.net https://rmdhdsnappytv-vh.akamaihd.net https://rmpdhdsnappytv-vh.akamaihd.net https://rmmdhdsnappytv-vh.akamaihd.net https://dwo3ckksxlb0v.cloudfront.net
-            // media-src 'self' blob: https://www.instagram.com https://*.cdninstagram.com https://*.fbcdn.net;
+            // twitter's existing => media-src 'self' blob: https://twitter.com https://*.twimg.com https://*.vine.co https://*.pscp.tv https://*.video.pscp.tv https://*.giphy.com https://media.riffsy.com https://mdhdsnappytv-vh.akamaihd.net https://mpdhdsnappytv-vh.akamaihd.net https://mmdhdsnappytv-vh.akamaihd.net https://smdhdsnappytv-vh.akamaihd.net https://smpdhdsnappytv-vh.akamaihd.net https://smmdhdsnappytv-vh.akamaihd.net https://rmdhdsnappytv-vh.akamaihd.net https://rmpdhdsnappytv-vh.akamaihd.net https://rmmdhdsnappytv-vh.akamaihd.net https://dwo3ckksxlb0v.cloudfront.net
+            // instagram's existing => media-src 'self' blob: https://www.instagram.com https://*.cdninstagram.com https://*.fbcdn.net;
             csp = csp.replace('media-src', 'media-src https://www.instagram.com https://*.cdninstagram.com https://*.fbcdn.net');
             details.responseHeaders[i].value = csp;
             break;

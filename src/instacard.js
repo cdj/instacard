@@ -210,7 +210,7 @@
                                             nextPosition = media.edge_sidecar_to_children.edges.length - 1;
                                         }
                                         // container.scrollLeft = nextPosition * galWidth;
-                                        $(container).stop(true).animate({scrollLeft: nextPosition * galWidth}, 150);
+                                        $media.stop(true).animate({scrollLeft: nextPosition * galWidth}, 150);
                                     });
                                     right.on('click', (e) => {
                                         e.stopPropagation();
@@ -222,7 +222,7 @@
                                             nextPosition = 0;
                                         }
                                         // container.scrollLeft = nextPosition * galWidth;
-                                        $(container).stop(true).animate({scrollLeft: nextPosition * galWidth}, 150);
+                                        $media.stop(true).animate({scrollLeft: nextPosition * galWidth}, 150);
                                     });
                                     $media.append(left).append(right);
                                 }

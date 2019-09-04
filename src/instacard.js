@@ -25,56 +25,6 @@
         return ((window.matchMedia && (window.matchMedia('only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx), only screen and (min-resolution: 75.6dpcm)').matches || window.matchMedia('only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min--moz-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2)').matches)) || (window.devicePixelRatio && window.devicePixelRatio >= 2)) && /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
     }
 
-    // images for retweets w/ comments
-    const addInstaQuote = (tweet) => {
-        const text = tweet.find(".QuoteTweet-text").text();
-        if (!text || ((text.indexOf("instagr.am") == -1) && (text.indexOf("instagram.com") == -1)) || tweet.find(".QuoteMedia").length) {
-            return;
-        }
-
-        const instaUrl = tweet.find('[data-expanded-url]').data('expanded-url');
-        if (!instaUrl) {
-            return;
-        }
-        const instaUrlSplit = instaUrl.split('/');
-        if(instaUrlSplit.length < 5) {
-            return;
-        }
-        clearTimeout(injectScriptWaiter);
-        const instaShort = instaUrlSplit[4] || "";
-        const width = Math.floor(tweet.find(".QuoteTweet-text").width());
-
-        fetch("https://api.instagram.com/oembed/?url=http://instagr.am/p/" + instaShort + "/&maxwidth="+width+"&omitscript=true")
-            .then(response => {
-                if (response.status !== 200) {
-                    throw Error(`${response.url} has returned ${response.status} status code.`);
-                }
-                return response.json()
-            })
-            .then(data => {
-                const html = 
-                    '<div class="QuoteMedia instacard-q">' +
-                        '<div class="QuoteMedia-container js-quote-media-container">' +
-                            '<div class="QuoteMedia-singlePhoto">' +
-                                '<div class="QuoteMedia-photoContainer js-quote-photo" data-image-url="'+data.thumbnail_url+'" data-element-context="platform_photo_card" style="background-color:rgba(64,64,64,1.0);" data-dominant-color="[64,64,64]">' +
-                                '<img data-aria-label-part="" src="'+data.thumbnail_url+'" alt="'+data.title+'" style="height: 100%;left: 50%;transform: translateX(-50%);">' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-                tweet.find(".tweet-content").first().prepend(html);
-
-                clearTimeout(injectScriptWaiter);
-                injectScriptWaiter = setTimeout(function() {
-                    var script = document.createElement('script');
-                    script.type = 'text/javascript';
-                    script.src = '//www.instagram.com/embed.js';
-                    script.setAttribute("async", "");
-                    // script.setAttribute("defer", "");
-                    document.head.appendChild(script);
-                }, 200);
-            });
-    };
-
     const addInstaNew = (tweet) => {
         const text = tweet.innerText;
         if(/\/\/(www.)?((instagram.com)|(instagr.am))\/p\/[A-Za-z0-9]+/gi.test(text)) {
@@ -305,52 +255,6 @@
 
                         $afterMedia.before($page);
                     }
-
-                    // const injectedCode = $(`
-                    //     <div class="instacard-photo">
-                    //         <a href="${instaUrl}" target="_blank">
-                    //             <img class="instathumb" src="${data.thumbnail_url}">
-                    //         </a>
-                    //         <p class="instatext"></p>
-                    //         <div class="insta-author">
-                    //             <a href="https://www.instagram.com/${data.author_name}" target="_blank">@${data.author_name}</a>
-                    //         </div>
-                    //     </div>
-                    // `);
-                    // injectedCode.find(".instatext").text(data.title);
-                    // injectedCode.find("*")
-                    //     .css({
-                    //         "background": "", 
-                    //         "background-color": "", 
-                    //         "color": "", 
-                    //         "border": "", 
-                    //         "border-radius": "", 
-                    //         "box-shadow": ""
-                    //     });
-                    // let insertAfter = $(par).children();
-                    // insertAfter = insertAfter.not('[aria-label*="Retweets"],[aria-label*="likes"]');
-                    // insertAfter.each((n, value) => {
-                    //     if($(value).find('a[href^="https://help.twitter.com/using-twitter/how-to-tweet"]').length) {
-                    //         insertAfter = insertAfter.not($(value).nextAll()).not(value);
-                    //     }
-                    // });
-                    // insertAfter.last().after(injectedCode);
-                    // $afterMedia.before(injectedCode);
-                    // $afterMedia.before(apiHtml);
-                    // $(tweet).find("div.instacard-photo *")
-                    //     .css({
-                    //         "background": "", 
-                    //         "background-color": "", 
-                    //         "color": "", 
-                    //         "border": "", 
-                    //         "border-radius": "", 
-                    //         "box-shadow": ""
-                    //     });
-                    // const refUrl = injectedCode.find("a").attr("href") || ('http://instagr.am/p/' + instaShort + '/');
-                    // const image = $('<a href="'+refUrl+'" target="_blank"><img src="'+data.thumbnail_url+'" alt="'+data.title+'"></a>');
-                    // injectedCode.find("[data-instgrm-permalink] > div > div").first()
-                    //     .html(image)
-                    //     .css({"padding": 0, "margin-top": 0});
                 });
         } else {
             return;

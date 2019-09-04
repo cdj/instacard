@@ -2,9 +2,6 @@ chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if (request.contentScriptQuery === "getEmbed") {
             // fetch('https://api.instagram.com/oembed/?url=http://instagr.am/p/'+request.instaId+'/&maxwidth='+request.width+'&omitscript=true')
-            //     .then(response => response.json())
-            //     .then(data => sendResponse(data))
-            //     .catch(error => console.warn(error));
             fetch('https://www.instagram.com/p/' + request.instaId + '/')
                 .then(response => {
                     if(response.ok) {
@@ -35,22 +32,6 @@ chrome.runtime.onMessage.addListener(
     }
 );
 
-// const hosts = [
-//     'https:',
-//     'data:',
-//     'blob:',
-//     'https://d1j5o6e2vipffp.cloudfront.net',
-//     'https://*.instagram.com',
-//     'https://scontent*.cdninstagram.com',
-//     'https://*.cdninstagram.com',
-//     'https://*.fna.fbcdn.net',
-//     'https://*.fbcdn.net',
-//     // 'https://scontent.cdninstagram.com/',
-//     // 'https://instagram.fphl1-2.fna.fbcdn.net/',
-//     // 'https://*.igcdn.com',
-//     // 'https://*.facebook.com'
-// ];
-
 chrome.webRequest.onHeadersReceived.addListener(function(details) {
     console.log(details);
     let isCSPHeader = false;
@@ -69,12 +50,6 @@ chrome.webRequest.onHeadersReceived.addListener(function(details) {
             break;
         }
     }
-    // if(!isCSPHeader) {
-    //     details.responseHeaders.push({
-    //         name: "content-security-policy",
-    //         value: ""
-    //     });
-    // }
 
     return {
         responseHeaders: details.responseHeaders
@@ -83,15 +58,5 @@ chrome.webRequest.onHeadersReceived.addListener(function(details) {
     urls: [
         'http://*/*',
         'https://*/*'
-        // 'http://twitter.com/*',
-        // 'http://*.twitter.com/*',
-        // 'https://twitter.com/*',
-        // 'https://*.twitter.com/*',
-    ]//,
-    // types: [
-    //     'main_frame',
-    //     'image',
-    //     'media',
-    //     'script'
-    // ]
+    ]
 }, ['blocking', 'responseHeaders']);

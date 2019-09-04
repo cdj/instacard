@@ -33,13 +33,12 @@ chrome.runtime.onMessage.addListener(
 );
 
 chrome.webRequest.onHeadersReceived.addListener(function(details) {
-    console.log(details);
+    // console.log(details);
     let isCSPHeader = false;
     for (var i = 0; details.responseHeaders && i < details.responseHeaders.length; i++) {
         isCSPHeader = /content-security-policy/i.test(details.responseHeaders[i].name);
         if (isCSPHeader) {
             var csp = details.responseHeaders[i].value;
-            console.log(csp);
             // img-src 'self' blob: data: https://*.cdn.twitter.com https://ton.twitter.com https://*.twimg.com https://www.google-analytics.com https://www.periscope.tv https://www.pscp.tv https://media.riffsy.com https://*.giphy.com https://*.pscp.tv"
             // img-src https: data: blob:; font-src https: data:;
             csp = csp.replace(/img-src [^;]+;/gi, `img-src 'self' https: data: blob:;`);

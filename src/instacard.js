@@ -48,7 +48,7 @@
 
             const existingMedia = $(tweet).find("a[href] div[aria-label='Image'] img[alt='Image'][draggable='false'][src],video[preload='none'][playsinline][src],blockquote.instagram-media");
             if(existingMedia.length > 0) {
-                console.debug("instacard - tweet already contains media", tweet, existingMedia);
+                // console.debug("instacard - tweet already contains media", tweet, existingMedia);
                 $(tweet).addClass('insta-has-media');
                 return;
             } else {
@@ -62,15 +62,15 @@
                     // this is the date/time div
                     $afterMedia = next;
                 } else {
-                    console.debug("instacard - tweet probably already contains media", tweet, existingMedia);
+                    // console.debug("instacard - tweet probably already contains media", tweet, existingMedia);
                     $(tweet).addClass('insta-probably-has-media');
                     return;
                 }
             }
             let par = $afterMedia.parent()[0];
             const width = Math.floor(par.clientWidth);
-            console.debug('instacard getEmbed', instaShort, width, existingMedia);
-            console.log(tweet.innerHTML);
+            // console.debug('instacard getEmbed', instaShort, width, existingMedia);
+            // console.log(tweet.innerHTML);
 
             chrome.runtime.sendMessage(
                 {
@@ -84,7 +84,7 @@
                         $(tweet).find('a[title*="instagr"]').append(`<span>⚠️</span>`);
                         return;
                     }
-                    console.debug('instacard embed data', data);
+                    // console.debug('instacard embed data', data);
                     // const apiHtml = $(data.html);
                     // apiHtml.find("a[href]").first().html(`
                     //     <img class="instathumb" src="${data.thumbnail_url}">
@@ -202,7 +202,7 @@
                                     const right = $(`<div class="insta-gal-btn insta-gal-right">&gt;</div>`);
                                     left.on('click', (e) => {
                                         e.stopPropagation();
-                                        console.log(e, $media[0], $media.scrollLeft);
+                                        // console.log(e, $media[0]);
                                         const container = $media[0];
                                         const galWidth = container.parentElement.scrollWidth;
                                         let nextPosition = Math.round((container.scrollLeft / galWidth) - 1);
@@ -214,7 +214,7 @@
                                     });
                                     right.on('click', (e) => {
                                         e.stopPropagation();
-                                        console.log(e, $media[0], $media.scrollLeft);
+                                        // console.log(e, $media[0]);
                                         const container = $media[0];
                                         const galWidth = container.parentElement.scrollWidth;
                                         let nextPosition = Math.round((container.scrollLeft / galWidth) + 1);
@@ -251,7 +251,7 @@
                             $descContainer.find("a").text(media.edge_media_to_caption.edges[d].node.text);
                             $page.find(".insta-container").append($descContainer);
                         }
-                        console.log("instacard - ready to inject", $afterMedia, $page);
+                        // console.log("instacard - ready to inject", $afterMedia, $page);
 
                         $afterMedia.before($page);
                     }
@@ -300,7 +300,7 @@
         for(let p = 0; p < tweetParents.length; p++) {
             const tweetsToScan = $(tweetParents[p]).children().not(".insta-scanning,.instacard").addClass('insta-scanning');
             if(tweetsToScan.length === 0) continue;
-            console.info("instacard - mutation, scanning " + tweetsToScan.length + " tweets");
+            // console.info("instacard - mutation, scanning " + tweetsToScan.length + " tweets");
             tweetsToScan.each((index, tweet) => {
                 processTweet(tweet);
             });
@@ -330,7 +330,7 @@
             }).addClass("instacard-top");
 
             if(newParents.length > 0) {
-                console.info("instacard - found new tweet parents: ", newParents.length);
+                // console.debug("instacard - found new tweet parents: ", newParents.length);
                 for(let p = 0; p < newParents.length; p++) {
                     // observe this tweet parent - tweets will be loading under it
                     new MutationObserver(scanTweets)
@@ -342,11 +342,11 @@
                 }
                 scanTweets(); // process existing tweets
             } else {
-                console.debug("instacard - couldn't find tweet root, retrying...", tweetParent);
+                // console.debug("instacard - couldn't find tweet root, retrying...", tweetParent);
                 findTweetRootRetry = setTimeout(findTweetRoot, 200);
             }
         } else {
-            console.debug("instacard - couldn't find timeline, retrying...", timelines);
+            // console.debug("instacard - couldn't find timeline, retrying...", timelines);
             findTweetRootRetry = setTimeout(findTweetRoot, 300);
         }
     };
@@ -358,7 +358,7 @@
         let removed = 0;
         for(let p = tweetParents.length - 1; p >= 0; p--) {
             if(!tweetParents[p] || !tweetParents[p].parentElement) {
-                console.debug("instacart - removed parent", tweetParents[p]);
+                // console.debug("instacart - removed parent", tweetParents[p]);
                 tweetParents.splice(p, 1);
                 removed++;
             }
